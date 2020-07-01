@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana
+data:
+  grafana-datasources.yml: |
+    apiVersion: 1
+
+    datasources:
+      - name: Thanos
+        type: prometheus
+        access: proxy
+        isDefault: true
+        url: http://thanos-query:9090/

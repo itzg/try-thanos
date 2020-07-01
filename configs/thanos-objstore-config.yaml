@@ -1,0 +1,7 @@
+type: s3
+config:
+  bucket: thanos
+  endpoint: minio-internal
+  insecure: true
+  access_key: minioadmin
+  secret_key: minioadmin

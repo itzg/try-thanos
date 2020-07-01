@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thanos-query
+  labels:
+    app: thanos-query
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thanos-query
+  template:
+    metadata:
+      labels:
+        app: thanos-query
+    spec:
+      containers:
+      - name: thanos-query
+        image: quay.io/thanos/thanos:v0.13.0
+        args:
+        - query
+        - --log.level=debug
+        - --query.replica-label=prometheus_replica
+        - --store=dnssrv+_grpc._tcp.thanos-receiver
+        - --store=dnssrv+_grpc._tcp.thanos-store
+        ports:
+        - name: http
+          containerPort: 10902
+        - name: grpc
+          containerPort: 10901
