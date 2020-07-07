@@ -5,7 +5,7 @@ metadata:
     app: thanos-receiver
   name: thanos-receiver
 spec:
-  replicas: 1
+  replicas: 2
   serviceName: thanos-receiver
   selector:
     matchLabels:
@@ -18,15 +18,24 @@ spec:
       containers:
         - image: quay.io/thanos/thanos:v0.13.0
           name: thanos-receiver
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           args:
             - receive
             - --log.level=debug
             - --tsdb.path=/data
-            - --objstore.config-file=/etc/thanos/objstore-config.yaml
+            - --objstore.config-file=/etc/thanos/objstore/objstore-config.yaml
+            - --receive.hashrings-file=/etc/thanos/receiver/hashring.json
+            - --receive.local-endpoint=$(POD_NAME).thanos-receiver:10901
             - --tsdb.retention=6h
           volumeMounts:
-            - mountPath: /etc/thanos/
+            - mountPath: /etc/thanos/objstore/
               name: objstore-config
+            - mountPath: /etc/thanos/receiver/
+              name: receiver-config
             - mountPath: /data
               name: data
           ports:
@@ -43,6 +52,9 @@ spec:
             items:
               - key: thanos-objstore-config.yaml
                 path: objstore-config.yaml
+        - name: receiver-config
+          configMap:
+            name: thanos-receiver
   volumeClaimTemplates:
     - metadata:
         name: data
