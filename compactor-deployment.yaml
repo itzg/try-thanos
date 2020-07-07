@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: thanos-compactor
+  name: thanos-compactor
+spec:
+  # NOTE: should never be more than 1 replica
+  replicas: 1
+  serviceName: thanos-compactor
+  selector:
+    matchLabels:
+      app: thanos-compactor
+  template:
+    metadata:
+      labels:
+        app: thanos-compactor
+    spec:
+      containers:
+        - image: quay.io/thanos/thanos:v0.13.0
+          name: thanos-compactor
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          args:
+            - compact
+            - --wait
+            - --log.level=debug
+            - --data-dir=/data
+            - --objstore.config-file=/etc/thanos/objstore/objstore-config.yaml
+            - --retention.resolution-raw=2d
+            - --retention.resolution-5m=7d
+            - --retention.resolution-1h=30d
+          volumeMounts:
+            - mountPath: /etc/thanos/objstore/
+              name: objstore-config
+            - mountPath: /data
+              name: data
+          ports:
+            - containerPort: 10902
+              name: http
+      volumes:
+        - name: objstore-config
+          secret:
+            secretName: thanos-objstore-config
+            items:
+              - key: thanos-objstore-config.yaml
+                path: objstore-config.yaml
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
