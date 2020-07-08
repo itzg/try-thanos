@@ -33,6 +33,7 @@ spec:
             - --retention.resolution-raw=2d
             - --retention.resolution-5m=7d
             - --retention.resolution-1h=30d
+            - --delete-delay=1h
           volumeMounts:
             - mountPath: /etc/thanos/objstore/
               name: objstore-config
