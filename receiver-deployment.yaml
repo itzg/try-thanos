@@ -30,6 +30,8 @@ spec:
             - --objstore.config-file=/etc/thanos/objstore/objstore-config.yaml
             - --receive.hashrings-file=/etc/thanos/receiver/hashring.json
             - --receive.local-endpoint=$(POD_NAME).thanos-receiver:10901
+            - --label
+            - "receive_replica=\"$(POD_NAME)\""
             - --tsdb.retention=6h
           volumeMounts:
             - mountPath: /etc/thanos/objstore/

@@ -23,6 +23,7 @@ spec:
         - --query.replica-label=prometheus_replica
         - --store=dnssrv+_grpc._tcp.thanos-receiver
         - --store=dnssrv+_grpc._tcp.thanos-store
+        - --query.replica-label=receive_replica
         ports:
         - name: http
           containerPort: 10902
